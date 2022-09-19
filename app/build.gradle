@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -66,7 +67,13 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'androidx.activity:activity-compose:1.5.1'
 
-    //Compose Destination
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:30.4.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+
+    // Compose Destination
     def destination_version = '1.7.21-beta'
     implementation "io.github.raamcosta.compose-destinations:animations-core:$destination_version"
     ksp "io.github.raamcosta.compose-destinations:ksp:$destination_version"
