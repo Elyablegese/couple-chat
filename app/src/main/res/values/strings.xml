@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Couple Chat</string>
+    <string name="welcome">Welcome</string>
+    <string name="welcome_description">Please create new room or join if you have invitation code</string>
+    <string name="create_chat">Create Chat</string>
+    <string name="join_chat">Join Chat</string>
 </resources>
