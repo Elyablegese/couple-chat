@@ -4,4 +4,6 @@
     <string name="welcome_description">Please create new room or join if you have invitation code</string>
     <string name="create_chat">Create Chat</string>
     <string name="join_chat">Join Chat</string>
+    <string name="create_chat_button">CREATE CHAT</string>
+    <string name="join_chat_button">JOIN CHAT</string>
 </resources>

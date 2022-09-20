@@ -20,6 +20,11 @@ val Rubik = FontFamily(
     )
 )
 val Typography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = Rubik,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = Rubik,
         fontWeight = FontWeight.Normal,
@@ -29,15 +34,15 @@ val Typography = Typography(
     ),
     titleLarge = TextStyle(
         fontFamily = Rubik,
-        fontWeight = FontWeight.Medium,
-        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
     labelMedium = TextStyle(
         fontFamily = Rubik,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
+        fontSize = 18.sp
     ),
     labelSmall = TextStyle(
         fontFamily = Rubik,
