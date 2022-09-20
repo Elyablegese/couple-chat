@@ -44,6 +44,15 @@ render.experimental.xml
 *.jks
 *.keystore
 
+
+# Local Firebase Configuration
+.firebaserc
+firebase.json
+firestore.indexes.json
+firestore.rules
+package-lock.json
+package.json
+storage.rules
 # Google Services (e.g. APIs or Firebase)
 google-services.json
 
