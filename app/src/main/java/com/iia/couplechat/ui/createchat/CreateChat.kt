@@ -3,7 +3,6 @@ package com.iia.couplechat.ui.createchat
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,7 +32,7 @@ fun CreateChatPage(navigator: DestinationsNavigator) {
         }
     ) { paddingValues ->
         Box(
-            Modifier.padding(paddingValues),
+            Modifier.padding(paddingValues).fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -41,16 +40,7 @@ fun CreateChatPage(navigator: DestinationsNavigator) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth(.75f)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text(text = "Ethiopia")
-                    IconButton(onClick = { /*TODO*/ }, modifier = Modifier.align(Alignment.CenterEnd)) {
-                        Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "")
-                    }
-                }
+                CountryPickerStock(Modifier.fillMaxWidth())
             }
         }
     }
