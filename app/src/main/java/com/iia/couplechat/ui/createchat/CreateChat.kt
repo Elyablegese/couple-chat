@@ -40,7 +40,7 @@ fun CreateChatPage(navigator: DestinationsNavigator) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth(.75f)
             ) {
-                CountryPickerStock(Modifier.fillMaxWidth())
+
             }
         }
     }
