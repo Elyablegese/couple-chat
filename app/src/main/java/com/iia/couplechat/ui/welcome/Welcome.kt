@@ -1,5 +1,6 @@
 package com.iia.couplechat.ui.welcome
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -19,6 +20,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @RootNavGraph(start = true)
 @Destination
@@ -76,6 +78,7 @@ fun WelcomePage(navigator: DestinationsNavigator) {
     }
 }
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Preview
 @Composable
