@@ -22,7 +22,8 @@ import countries
 fun PhoneNumberInput(
     country: Country,
     modifier: Modifier = Modifier,
-    countryCodeChanged: (String) -> Unit = {}
+    countryCodeChanged: (String) -> Unit = {},
+    phoneNumberChanged: (String) -> Unit = {}
 ) {
     var countryCode by remember { mutableStateOf("${country.countryCode}") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -50,7 +51,11 @@ fun PhoneNumberInput(
 
         TextField(
             value = phoneNumber,
-            onValueChange = { phoneNumber = it }, placeholder = {
+            onValueChange = {
+                phoneNumber = it
+                phoneNumberChanged(it)
+            },
+            placeholder = {
                 Text(text = country.format.replace('X', '0'))
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
