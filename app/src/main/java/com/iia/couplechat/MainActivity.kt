@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.iia.couplechat.ui.NavGraphs
@@ -16,6 +17,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 
+@ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialNavigationApi
 @ExperimentalAnimationApi

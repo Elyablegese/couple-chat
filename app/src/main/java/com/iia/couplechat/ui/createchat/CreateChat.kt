@@ -1,6 +1,5 @@
 package com.iia.couplechat.ui.createchat
 
-import EmptyCountry
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,13 +8,16 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.PhoneAuthOptions
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iia.couplechat.R
 import com.iia.couplechat.ui.destinations.CountryListDestination
 import com.ramcosta.composedestinations.annotation.Destination
@@ -26,16 +28,17 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import countries
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Destination
 @Composable
 fun CreateChatPage(
     navigator: DestinationsNavigator,
-    resultRecipient: ResultRecipient<CountryListDestination, String> = EmptyResultRecipient()
+    resultRecipient: ResultRecipient<CountryListDestination, String> = EmptyResultRecipient(),
+    createChatViewModel: CreateChatViewModel = viewModel()
 ) {
-    FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099)
-    val uiState = rememberCreateChatState()
+    val uiState by createChatViewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -49,11 +52,7 @@ fun CreateChatPage(
             )
         },
         floatingActionButton = {
-            IconButton(onClick = {
-                val options = PhoneAuthOptions.newBuilder()
-                    .setPhoneNumber("")
-                    .build()
-            }) {
+            IconButton(onClick = {}) {
                 Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "")
             }
         }
@@ -74,13 +73,14 @@ fun CreateChatPage(
                     when (result) {
                         is NavResult.Canceled -> {}
                         is NavResult.Value -> {
-                            uiState.value.country = countries.first { result.value == it.shortName }
+                            createChatViewModel.handleEvent(CreateChatEvent.CountryChanged(countries.first { result.value == it.shortName }.name))
                         }
                     }
                 }
 
                 CountryPicker(
-                    country = uiState.value.country,
+                    countryName = uiState.countryName,
+                    url = uiState.url,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(64.dp)
@@ -89,21 +89,22 @@ fun CreateChatPage(
                         }
                 )
                 PhoneNumberInput(
-                    country = uiState.value.country,
+                    countryCode = uiState.countryCode,
+                    phoneNumberFormat = uiState.phoneNumberFormat,
+                    phoneNumber = uiState.phoneNumber,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(64.dp),
                     countryCodeChanged = { countryCode ->
-                        try {
-                            uiState.value.country =
-                                countries.firstOrNull { it.countryCode == countryCode.toInt() }
-                                    ?: EmptyCountry
-                        } catch (e: Exception) {
-                            println(e.message)
-                        }
+                        createChatViewModel.handleEvent(
+                            CreateChatEvent.CountryCodeChanged(countryCode)
+                        )
+
                     },
                     phoneNumberChanged = { phoneNumber ->
-                        uiState.value.phoneNumber = phoneNumber
+                        createChatViewModel.handleEvent(
+                            CreateChatEvent.PhoneNumberChanged(phoneNumber)
+                        )
                     }
                 )
             }
@@ -111,10 +112,11 @@ fun CreateChatPage(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Preview
 @Composable
 fun CreateChatPagePreview() {
-    CreateChatPage(EmptyDestinationsNavigator)
+    CreateChatPage(navigator = EmptyDestinationsNavigator)
 }

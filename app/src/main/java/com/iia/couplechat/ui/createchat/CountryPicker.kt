@@ -24,7 +24,7 @@ import com.iia.couplechat.ui.theme.CoupleChatShapes
 
 @ExperimentalAnimationApi
 @Composable
-fun CountryPicker(country: Country, modifier: Modifier = Modifier) {
+fun CountryPicker(countryName: String, url: String, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.border(
@@ -39,10 +39,10 @@ fun CountryPicker(country: Country, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            if (country.shortName.isEmpty()) {
+            if (countryName.isEmpty()) {
                 Text(text = "Country", modifier = Modifier.weight(1f))
             } else {
-                AnimatedContent(targetState = country.shortName,
+                AnimatedContent(targetState = countryName,
                     modifier = Modifier.weight(1f),
                     transitionSpec = {
                         if (targetState > initialState)
@@ -56,9 +56,9 @@ fun CountryPicker(country: Country, modifier: Modifier = Modifier) {
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current).data(country.url)
+                            model = ImageRequest.Builder(LocalContext.current).data(url)
                                 .crossfade(true).build(),
-                            contentDescription = "${country.name} Flag",
+                            contentDescription = "$countryName Flag",
                             placeholder = painterResource(id = R.drawable.placeholder_flag),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.size(24.dp)
@@ -80,12 +80,7 @@ fun CountryPickerPreview() {
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp),
-        country = Country(
-            countryCode = 1876,
-            shortName = "JM",
-            name = "Jamaica",
-            format = "XXX XXXX",
-            url = "https://flagcdn.com/24x18/jm.png"
-        )
+        countryName = "Jamaica",
+        url = "https://flagcdn.com/24x18/jm.png"
     )
 }

@@ -5,10 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
-class CreateChatState {
-    var country = EmptyCountry
-    var phoneNumber = ""
+data class CreateChatState(
+    val phoneNumber: String = "",
+    val countryName: String = "",
+    val countryCode: String = "",
+    val phoneNumberFormat: String = "",
+    val url: String = ""
+) {
+    fun isValid(): Boolean =
+        phoneNumber.isNotEmpty() && phoneNumber.length > 6 && countryCode.length > 1
 }
-
-@Composable
-fun rememberCreateChatState() = remember { mutableStateOf(CreateChatState()) }
