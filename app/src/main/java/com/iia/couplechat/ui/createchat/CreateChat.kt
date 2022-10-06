@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iia.couplechat.R
 import com.iia.couplechat.ui.destinations.CountryListDestination
+import com.iia.couplechat.ui.destinations.VerifyNumberDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
@@ -63,7 +64,8 @@ fun CreateChatPage(
             AnimatedVisibility(visible = uiState.isValid(), enter = scaleIn(), exit = scaleOut()) {
                 FloatingActionButton(
                     onClick = {
-                        createChatViewModel.handleEvent(CreateChatEvent.OnDone(activity))
+                        navigator.navigate(VerifyNumberDestination)
+//                        createChatViewModel.handleEvent(CreateChatEvent.OnDone(activity))
                     },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
