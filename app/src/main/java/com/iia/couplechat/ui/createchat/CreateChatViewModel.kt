@@ -3,6 +3,7 @@ package com.iia.couplechat.ui.createchat
 import EmptyCountry
 import android.app.Activity
 import android.util.Log
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -12,13 +13,16 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.iia.couplechat.ui.destinations.ProfilePageDestination
 import com.iia.couplechat.ui.verifynumber.VerificationCode
 import countries
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.TimeUnit
 import com.iia.couplechat.ui.verifynumber.VerificationCode.*
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@ExperimentalMaterial3Api
 @HiltViewModel
 class CreateChatViewModel : ViewModel() {
     val uiState = MutableStateFlow(CreateChatState())
@@ -94,11 +98,12 @@ class CreateChatViewModel : ViewModel() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    private fun verifyPhoneNumber(verificationCode: String, activity: Activity) {
+    private fun verifyPhoneNumber(verificationCode: String, activity: Activity, navigator: DestinationsNavigator) {
         val credential = PhoneAuthProvider.getCredential(uiState.value.verificationId, verificationCode)
         auth.signInWithCredential(credential).addOnCompleteListener(activity) { task ->
             if (task.isSuccessful) {
                 Log.d("TAG", "verifyPhoneNumber: sign in success")
+                navigator.navigate(ProfilePageDestination)
             } else {
                 if (task.exception is FirebaseAuthInvalidCredentialsException) {
                     Log.d("TAG", "verifyPhoneNumber: verification code error")
@@ -126,7 +131,7 @@ class CreateChatViewModel : ViewModel() {
             is CreateChatEvent.URLChanged -> urlChanged(event.url)
             is CreateChatEvent.CountryCodeChanged -> countryCodeChanged(event.countryCode)
             is CreateChatEvent.OnSendCode -> sendVerificationCode(event.activity)
-            is CreateChatEvent.OnVerifyNumber -> verifyPhoneNumber(event.verificationCode, event.activity)
+            is CreateChatEvent.OnVerifyNumber -> verifyPhoneNumber(event.verificationCode, event.activity, event.navigator)
             is CreateChatEvent.VerificationCodeChanged -> verificationCodeChanged(event.verificationCode, event.value)
         }
     }

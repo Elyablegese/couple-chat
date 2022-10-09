@@ -96,7 +96,7 @@ fun CreateChatPage(
                             )
                         },
                         onVerifyNumber = {
-                            createChatViewModel.handleEvent(CreateChatEvent.OnVerifyNumber(uiState.verificationCode, activity))
+                            createChatViewModel.handleEvent(CreateChatEvent.OnVerifyNumber(uiState.verificationCode, activity, navigator))
                         }
                     )
                 else
