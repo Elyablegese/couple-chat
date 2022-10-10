@@ -1,6 +1,7 @@
 package com.iia.couplechat
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -11,6 +12,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.iia.couplechat.ui.NavGraphs
 import com.iia.couplechat.ui.theme.CoupleChatTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -22,11 +26,14 @@ import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 @ExperimentalMaterialNavigationApi
 @ExperimentalAnimationApi
 class MainActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        auth = Firebase.auth
+        Log.d("TAG", "onCreate: ${auth.currentUser}")
         setContent {
             CoupleChatTheme {
-                // A surface container using the 'background' color from the theme
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -34,9 +41,21 @@ class MainActivity : ComponentActivity() {
                     val navHostEngine = rememberAnimatedNavHostEngine(
                         rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
                     )
-                    DestinationsNavHost(navGraph = NavGraphs.root, engine = navHostEngine)
+                    DestinationsNavHost(
+                        navGraph = if (auth.currentUser == null)
+                            NavGraphs.root
+                        else
+                            NavGraphs.profile,
+                        engine = navHostEngine
+                    )
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        auth = Firebase.auth
+        Log.d("TAG", "onStart: ${auth.currentUser}")
     }
 }

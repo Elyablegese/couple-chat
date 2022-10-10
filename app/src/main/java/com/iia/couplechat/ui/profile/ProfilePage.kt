@@ -1,5 +1,6 @@
 package com.iia.couplechat.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -18,18 +19,54 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.iia.couplechat.ui.navigation.ProfileNavGraph
 import com.ramcosta.composedestinations.annotation.Destination
+import kotlinx.coroutines.launch
 
+@ProfileNavGraph(start = true)
 @Destination
 @ExperimentalMaterial3Api
 @Composable
-fun ProfilePage() {
+fun ProfilePage(
+    profilePageViewModel: ProfilePageViewModel = viewModel()
+) {
+    val uiState by profilePageViewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(uiState.message) {
+        Log.d("TAG", "ProfilePage: effect called message: ${uiState.message}")
+        if (uiState.message.isNotEmpty()) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = uiState.message,
+                    duration = SnackbarDuration.Indefinite,
+                    actionLabel = "Ok"
+                )
+            }
+        }
+    }
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { snackbarData ->
+                Snackbar(action = {
+                    profilePageViewModel.handleEvent(ProfilePageEvent.MessageChanged(""))
+                }) {
+                    Text(text = snackbarData.visuals.message)
+                }
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text(text = "Profile") },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(
+                        onClick = {
+                            profilePageViewModel.handleEvent(ProfilePageEvent.OnSave)
+                        },
+                        enabled = uiState.isValid()
+                    ) {
                         Icon(imageVector = Icons.Default.Done, contentDescription = "")
                     }
                 }
@@ -47,8 +84,8 @@ fun ProfilePage() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                var firstName by remember { mutableStateOf("") }
-                var lastName by remember { mutableStateOf("") }
+
+
                 val lastNameFocusRequester = FocusRequester()
 
                 IconButton(
@@ -79,8 +116,14 @@ fun ProfilePage() {
                 )
 
                 OutlinedTextField(
-                    value = firstName,
-                    onValueChange = { firstName = it },
+                    value = uiState.firstName,
+                    onValueChange = {
+                        profilePageViewModel.handleEvent(
+                            ProfilePageEvent.FirstNameChanged(
+                                it
+                            )
+                        )
+                    },
                     label = { Text(text = "First Name") },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
@@ -90,14 +133,20 @@ fun ProfilePage() {
                 )
 
                 OutlinedTextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
+                    value = uiState.lastName,
+                    onValueChange = {
+                        profilePageViewModel.handleEvent(
+                            ProfilePageEvent.LastNameChanged(
+                                it
+                            )
+                        )
+                    },
                     label = { Text(text = "Last Name") },
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
                         imeAction = ImeAction.Done
                     ),
-                    keyboardActions = KeyboardActions(onDone = {  }),
+                    keyboardActions = KeyboardActions(onDone = { }),
                 )
             }
         }

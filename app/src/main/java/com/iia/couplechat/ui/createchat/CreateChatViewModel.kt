@@ -21,10 +21,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.TimeUnit
 import com.iia.couplechat.ui.verifynumber.VerificationCode.*
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
-class CreateChatViewModel : ViewModel() {
+class CreateChatViewModel @Inject constructor() : ViewModel() {
     val uiState = MutableStateFlow(CreateChatState())
     private var auth: FirebaseAuth = Firebase.auth
 
@@ -98,8 +101,13 @@ class CreateChatViewModel : ViewModel() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    private fun verifyPhoneNumber(verificationCode: String, activity: Activity, navigator: DestinationsNavigator) {
-        val credential = PhoneAuthProvider.getCredential(uiState.value.verificationId, verificationCode)
+    private fun verifyPhoneNumber(
+        verificationCode: String,
+        activity: Activity,
+        navigator: DestinationsNavigator
+    ) {
+        val credential =
+            PhoneAuthProvider.getCredential(uiState.value.verificationId, verificationCode)
         auth.signInWithCredential(credential).addOnCompleteListener(activity) { task ->
             if (task.isSuccessful) {
                 Log.d("TAG", "verifyPhoneNumber: sign in success")
@@ -112,7 +120,12 @@ class CreateChatViewModel : ViewModel() {
         }
     }
 
-    private fun verificationCodeChanged(verificationCode: VerificationCode, value: String) {
+    private fun verificationCodeChanged(
+        verificationCode: VerificationCode,
+        value: String,
+        navigator: DestinationsNavigator,
+        activity: Activity
+    ) {
         when (verificationCode) {
             CODE1 -> uiState.value = uiState.value.copy(code1 = value)
             CODE2 -> uiState.value = uiState.value.copy(code2 = value)
@@ -120,6 +133,10 @@ class CreateChatViewModel : ViewModel() {
             CODE4 -> uiState.value = uiState.value.copy(code4 = value)
             CODE5 -> uiState.value = uiState.value.copy(code5 = value)
             CODE6 -> uiState.value = uiState.value.copy(code6 = value)
+        }
+
+        if (uiState.value.isCodeValid()) {
+            verifyPhoneNumber(uiState.value.verificationCode, activity, navigator)
         }
     }
 
@@ -131,8 +148,17 @@ class CreateChatViewModel : ViewModel() {
             is CreateChatEvent.URLChanged -> urlChanged(event.url)
             is CreateChatEvent.CountryCodeChanged -> countryCodeChanged(event.countryCode)
             is CreateChatEvent.OnSendCode -> sendVerificationCode(event.activity)
-            is CreateChatEvent.OnVerifyNumber -> verifyPhoneNumber(event.verificationCode, event.activity, event.navigator)
-            is CreateChatEvent.VerificationCodeChanged -> verificationCodeChanged(event.verificationCode, event.value)
+            is CreateChatEvent.OnVerifyNumber -> verifyPhoneNumber(
+                event.verificationCode,
+                event.activity,
+                event.navigator
+            )
+            is CreateChatEvent.VerificationCodeChanged -> verificationCodeChanged(
+                event.verificationCode,
+                event.value,
+                event.navigator,
+                event.activity
+            )
         }
     }
 

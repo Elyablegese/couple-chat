@@ -92,11 +92,17 @@ fun CreateChatPage(
                         uiState = uiState,
                         verificationCodeChanged = { verificationCode, value ->
                             createChatViewModel.handleEvent(
-                                CreateChatEvent.VerificationCodeChanged(verificationCode, value)
+                                CreateChatEvent.VerificationCodeChanged(verificationCode, value, navigator, activity)
                             )
                         },
                         onVerifyNumber = {
-                            createChatViewModel.handleEvent(CreateChatEvent.OnVerifyNumber(uiState.verificationCode, activity, navigator))
+                            createChatViewModel.handleEvent(
+                                CreateChatEvent.OnVerifyNumber(
+                                    uiState.verificationCode,
+                                    activity,
+                                    navigator
+                                )
+                            )
                         }
                     )
                 else
