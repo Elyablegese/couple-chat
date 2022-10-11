@@ -5,6 +5,7 @@ import android.app.Activity
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -25,6 +26,7 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
+@ExperimentalPermissionsApi
 @ExperimentalMaterial3Api
 @HiltViewModel
 class CreateChatViewModel @Inject constructor() : ViewModel() {

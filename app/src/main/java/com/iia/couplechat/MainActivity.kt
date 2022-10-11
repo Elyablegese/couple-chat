@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -21,6 +22,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 
+@ExperimentalPermissionsApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialNavigationApi
