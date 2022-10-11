@@ -72,7 +72,12 @@ fun LoadingIcon(
             )
         }
     } else {
-        Icon(imageVector = imageVector, contentDescription = contentDescription)
+        Icon(
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            tint = color,
+            modifier = modifier
+        )
     }
 }
 
@@ -80,7 +85,7 @@ fun LoadingIcon(
 @Composable
 fun LoadingIconPreview() {
     LoadingIcon(
-        loading = true,
+        loading = false,
         imageVector = Icons.Default.Done,
         modifier = Modifier
             .width(LoadingIconDefaults.Size)
