@@ -21,8 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.iia.couplechat.R
+import com.iia.couplechat.ui.components.CoupleChatAppBar
+import com.iia.couplechat.ui.components.LoadingIcon
 import com.iia.couplechat.ui.destinations.CountryListDestination
 import com.iia.couplechat.ui.verifynumber.VerifyNumber
+import com.iia.couplechat.ui.verifynumber.VerifyNumberEvent
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
@@ -43,6 +46,7 @@ fun CreateChatPage(
     createChatViewModel: CreateChatViewModel = viewModel()
 ) {
     val uiState by createChatViewModel.uiState.collectAsState()
+    val verifyUiState by createChatViewModel.verifyUiState.collectAsState()
     val activity = LocalContext.current as Activity
 
     resultRecipient.onNavResult { result ->
@@ -55,8 +59,8 @@ fun CreateChatPage(
     }
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = { Text(text = stringResource(id = R.string.create_chat)) },
+            CoupleChatAppBar(
+                title = stringResource(id = R.string.create_chat),
                 navigationIcon = {
                     IconButton(onClick = { navigator.popBackStack() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "")
@@ -77,7 +81,7 @@ fun CreateChatPage(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ) {
-                    Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "")
+                    LoadingIcon(loading = uiState.loading, imageVector = Icons.Default.ArrowForward)
                 }
             }
         }
@@ -91,16 +95,16 @@ fun CreateChatPage(
             }) { state ->
                 if (state)
                     VerifyNumber(
-                        uiState = uiState,
+                        uiState = verifyUiState,
                         verificationCodeChanged = { verificationCode, value ->
                             createChatViewModel.handleEvent(
-                                CreateChatEvent.VerificationCodeChanged(verificationCode, value, navigator, activity)
+                                VerifyNumberEvent.VerificationCodeChanged(verificationCode, value, navigator, activity)
                             )
                         },
                         onVerifyNumber = {
                             createChatViewModel.handleEvent(
                                 CreateChatEvent.OnVerifyNumber(
-                                    uiState.verificationCode,
+                                    verifyUiState.verificationCode,
                                     activity,
                                     navigator
                                 )

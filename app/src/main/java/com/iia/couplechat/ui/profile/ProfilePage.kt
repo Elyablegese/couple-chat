@@ -36,6 +36,8 @@ import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
+import com.iia.couplechat.ui.components.CoupleChatAppBar
+import com.iia.couplechat.ui.components.LoadingIcon
 import com.iia.couplechat.ui.navigation.ProfileNavGraph
 import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.launch
@@ -117,8 +119,8 @@ fun ProfilePage(
             }
         },
         topBar = {
-            TopAppBar(
-                title = { Text(text = "Profile") },
+            CoupleChatAppBar(
+                title = "Profile",
                 actions = {
                     IconButton(
                         onClick = {
@@ -126,7 +128,7 @@ fun ProfilePage(
                         },
                         enabled = uiState.isValid()
                     ) {
-                        Icon(imageVector = Icons.Default.Done, contentDescription = "")
+                        LoadingIcon(loading = uiState.loading, imageVector = Icons.Default.Done)
                     }
                 }
             )

@@ -16,11 +16,4 @@ sealed class CreateChatEvent {
         val activity: Activity,
         val navigator: DestinationsNavigator
     ) : CreateChatEvent()
-
-    class VerificationCodeChanged(
-        val verificationCode: VerificationCode,
-        val value: String,
-        val navigator: DestinationsNavigator,
-        val activity: Activity
-    ) : CreateChatEvent()
 }

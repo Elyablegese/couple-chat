@@ -30,6 +30,7 @@ class ProfilePageViewModel : ViewModel() {
             is ProfilePageEvent.ShowPermissionChanged -> showPermissionChanged(event.shouldShowPermission)
             is ProfilePageEvent.PermissionGrantedChanged -> permissionGrantedChanged(event.permissionGranted)
             is ProfilePageEvent.ImageUriChanged -> imageUriChanged(event.imageUri)
+            is ProfilePageEvent.LoadingChanged -> loadingChanged(event.loading)
         }
     }
 
@@ -42,6 +43,7 @@ class ProfilePageViewModel : ViewModel() {
     }
 
     private fun save() {
+        loadingChanged(true)
         var user = User(
             userId = currentUser?.uid,
             firstName = uiState.value.firstName,
@@ -67,7 +69,6 @@ class ProfilePageViewModel : ViewModel() {
         }
     }
 
-
     private fun messageChanged(message: String) {
         uiState.value = uiState.value.copy(message = message)
     }
@@ -83,7 +84,6 @@ class ProfilePageViewModel : ViewModel() {
     private fun imageUriChanged(imageUri: Uri?) {
         uiState.value = uiState.value.copy(imageUri = imageUri)
     }
-
     private fun saveUser(user: User) {
         fireStore.collection("users")
             .add(user)
@@ -91,13 +91,20 @@ class ProfilePageViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     messageChanged("Successfully Saved")
                     Log.d("TAG", "save: success you son of a bitch")
+                    loadingChanged(false)
                 } else {
                     messageChanged("Not Successfully")
                     Log.d("TAG", "save: not success you son of a bitch")
+                    loadingChanged(false)
                 }
             }
             .addOnFailureListener { exception ->
                 exception.message?.let { messageChanged(it) }
+                loadingChanged(false)
             }
+    }
+
+    private fun loadingChanged(loading: Boolean) {
+        uiState.value = uiState.value.copy(loading = loading)
     }
 }

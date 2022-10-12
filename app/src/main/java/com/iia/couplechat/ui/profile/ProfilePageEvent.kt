@@ -10,4 +10,5 @@ sealed class ProfilePageEvent{
     class ShowPermissionChanged(val shouldShowPermission: Boolean): ProfilePageEvent()
     class PermissionGrantedChanged(val permissionGranted: Boolean): ProfilePageEvent()
     class ImageUriChanged(val imageUri: Uri?): ProfilePageEvent()
+    class LoadingChanged(val loading: Boolean): ProfilePageEvent()
 }

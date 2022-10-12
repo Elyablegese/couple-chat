@@ -9,7 +9,8 @@ data class ProfilePageState(
     val message: String = "",
     val shouldShowPermission: Boolean = false,
     val permissionGranted: Boolean = false,
-    val imageUri: Uri? = null
+    val imageUri: Uri? = null,
+    val loading: Boolean = false
 ){
     fun isValid() = firstName.isNotEmpty()
 }

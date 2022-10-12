@@ -7,23 +7,19 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.iia.couplechat.ui.destinations.ProfilePageDestination
 import com.iia.couplechat.ui.verifynumber.VerificationCode
+import com.iia.couplechat.ui.verifynumber.VerificationCode.*
+import com.iia.couplechat.ui.verifynumber.VerifyNumberEvent
+import com.iia.couplechat.ui.verifynumber.VerifyNumberState
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import countries
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.TimeUnit
-import com.iia.couplechat.ui.verifynumber.VerificationCode.*
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import dagger.hilt.android.qualifiers.ActivityContext
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 @ExperimentalPermissionsApi
@@ -31,15 +27,18 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateChatViewModel @Inject constructor() : ViewModel() {
     val uiState = MutableStateFlow(CreateChatState())
+    val verifyUiState = MutableStateFlow(VerifyNumberState())
     private var auth: FirebaseAuth = Firebase.auth
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
             Log.d("TAG", "onVerificationCompleted: $credential")
+            loadingChanged(false)
         }
 
         override fun onVerificationFailed(firebaseException: FirebaseException) {
             Log.d("TAG", "onVerificationFailed: ", firebaseException)
+            loadingChanged(false)
         }
 
         override fun onCodeSent(
@@ -47,6 +46,8 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
             token: PhoneAuthProvider.ForceResendingToken
         ) {
             uiState.value = uiState.value.copy(codeSent = true, verificationId = verificationId)
+            loadingChanged(false)
+
             Log.d("TAG", "onCodeSent: Code sent")
         }
     }
@@ -91,6 +92,7 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun sendVerificationCode(activity: Activity) {
+        loadingChanged(true)
         val phoneNumber = "+${uiState.value.countryCode}${uiState.value.phoneNumber}"
         Log.d("TAG", "sendVerificationCode: phone number $phoneNumber")
         val options = PhoneAuthOptions.newBuilder(auth)
@@ -129,17 +131,25 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
         activity: Activity
     ) {
         when (verificationCode) {
-            CODE1 -> uiState.value = uiState.value.copy(code1 = value)
-            CODE2 -> uiState.value = uiState.value.copy(code2 = value)
-            CODE3 -> uiState.value = uiState.value.copy(code3 = value)
-            CODE4 -> uiState.value = uiState.value.copy(code4 = value)
-            CODE5 -> uiState.value = uiState.value.copy(code5 = value)
-            CODE6 -> uiState.value = uiState.value.copy(code6 = value)
+            CODE1 -> verifyUiState.value = verifyUiState.value.copy(code1 = value)
+            CODE2 -> verifyUiState.value = verifyUiState.value.copy(code2 = value)
+            CODE3 -> verifyUiState.value = verifyUiState.value.copy(code3 = value)
+            CODE4 -> verifyUiState.value = verifyUiState.value.copy(code4 = value)
+            CODE5 -> verifyUiState.value = verifyUiState.value.copy(code5 = value)
+            CODE6 -> verifyUiState.value = verifyUiState.value.copy(code6 = value)
         }
 
-        if (uiState.value.isCodeValid()) {
-            verifyPhoneNumber(uiState.value.verificationCode, activity, navigator)
+        if (verifyUiState.value.isCodeValid()) {
+            verifyPhoneNumber(verifyUiState.value.verificationCode, activity, navigator)
         }
+    }
+
+    private fun loadingChanged(loading: Boolean) {
+        uiState.value = uiState.value.copy(loading = loading)
+    }
+
+    private fun verifyLoadingChanged(loading: Boolean){
+        verifyUiState.value = verifyUiState.value.copy(loading = loading)
     }
 
     fun handleEvent(event: CreateChatEvent) {
@@ -155,7 +165,12 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
                 event.activity,
                 event.navigator
             )
-            is CreateChatEvent.VerificationCodeChanged -> verificationCodeChanged(
+        }
+    }
+
+    fun handleEvent(event: VerifyNumberEvent) {
+        when(event){
+            is VerifyNumberEvent.VerificationCodeChanged -> verificationCodeChanged(
                 event.verificationCode,
                 event.value,
                 event.navigator,
@@ -163,6 +178,4 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
             )
         }
     }
-
-
 }

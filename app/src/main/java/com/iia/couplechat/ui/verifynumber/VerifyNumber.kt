@@ -27,7 +27,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 @Destination
 @Composable
 fun VerifyNumber(
-    uiState: CreateChatState,
+    uiState: VerifyNumberState,
     verificationCodeChanged: (verificationCode: VerificationCode, value: String) -> Unit,
     onVerifyNumber: () -> Unit = {}
 ) {
