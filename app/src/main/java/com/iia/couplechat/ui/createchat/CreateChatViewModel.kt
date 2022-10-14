@@ -148,9 +148,9 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
         uiState.value = uiState.value.copy(loading = loading)
     }
 
-    private fun verifyLoadingChanged(loading: Boolean){
-        verifyUiState.value = verifyUiState.value.copy(loading = loading)
-    }
+//    private fun verifyLoadingChanged(loading: Boolean){
+//        verifyUiState.value = verifyUiState.value.copy(loading = loading)
+//    }
 
     fun handleEvent(event: CreateChatEvent) {
         when (event) {

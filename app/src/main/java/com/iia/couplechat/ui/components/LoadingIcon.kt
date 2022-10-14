@@ -1,6 +1,5 @@
 package com.iia.couplechat.ui.components
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
@@ -21,7 +20,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
 
 
 @Composable
@@ -46,42 +44,41 @@ fun LoadingIcon(
             animation = tween(durationMillis = 1000, easing = LinearEasing)
         )
     )
-    Crossfade(targetState = loading) { loadingState->
-        if (loadingState) {
-            Canvas(
-                modifier = modifier
-                    .width(LoadingIconDefaults.Size)
-                    .height(LoadingIconDefaults.Size)
-            ) {
-                drawCircle(
-                    color = color.copy(alpha = .6f),
-                    radius = size.minDimension / 2 - strokeWidth.toPx(),
-                    style = stroke
+
+    if (loading) {
+        Canvas(
+            modifier = modifier
+                .width(LoadingIconDefaults.Size)
+                .height(LoadingIconDefaults.Size)
+        ) {
+            drawCircle(
+                color = color.copy(alpha = .6f),
+                radius = size.minDimension / 2 - strokeWidth.toPx(),
+                style = stroke
+            )
+            drawArc(
+                color = color,
+                startAngle = startAngle.value,
+                sweepAngle = 90f,
+                useCenter = false,
+                topLeft = topLeft,
+                style = stroke,
+                size = Size(
+                    width = size.width - 2 * strokeWidth.toPx(),
+                    height = size.height - 2 * strokeWidth.toPx()
                 )
-                drawArc(
-                    color = color,
-                    startAngle = startAngle.value,
-                    sweepAngle = 90f,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    style = stroke,
-                    size = Size(
-                        width = size.width - 2 * strokeWidth.toPx(),
-                        height = size.height - 2 * strokeWidth.toPx()
-                    )
-                )
-            }
-        } else {
-            Icon(
-                imageVector = imageVector,
-                contentDescription = contentDescription,
-                tint = color,
-                modifier = modifier
             )
         }
+    } else {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            tint = color,
+            modifier = modifier
+        )
     }
-
 }
+
 
 @Preview
 @Composable
@@ -91,6 +88,7 @@ fun LoadingIconPreview() {
         imageVector = Icons.Default.Done,
     )
 }
+
 object LoadingIconDefaults {
     val Size = 28.dp
     val StrokeWidth = 3.dp

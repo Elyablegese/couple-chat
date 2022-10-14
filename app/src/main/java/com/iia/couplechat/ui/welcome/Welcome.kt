@@ -32,15 +32,15 @@ fun WelcomePage(navigator: DestinationsNavigator) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(0.65f)
+            modifier = Modifier.fillMaxWidth(0.7f)
         ) {
             Text(
                 text = stringResource(R.string.welcome),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.displaySmall
             )
             Text(
                 text = stringResource(R.string.welcome_description),
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
                 textAlign = TextAlign.Center
             )
@@ -57,7 +57,7 @@ fun WelcomePage(navigator: DestinationsNavigator) {
             ) {
                 Text(
                     text = stringResource(id = R.string.create_chat_button),
-                    style = MaterialTheme.typography.displayLarge
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
             OutlinedButton(
@@ -73,7 +73,7 @@ fun WelcomePage(navigator: DestinationsNavigator) {
             ) {
                 Text(
                     text = stringResource(id = R.string.join_chat_button),
-                    style = MaterialTheme.typography.displayLarge
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
