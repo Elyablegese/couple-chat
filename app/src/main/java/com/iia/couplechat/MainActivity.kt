@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                         navGraph = if (auth.currentUser == null)
                             NavGraphs.root
                         else
-                            NavGraphs.profile,
+                            NavGraphs.chat,
                         engine = navHostEngine
                     )
                 }

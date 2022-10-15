@@ -12,7 +12,6 @@ import com.iia.couplechat.data.util.FirebaseStorageReferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.apache.commons.lang3.RandomStringUtils
-import java.security.SecureRandom
 import java.time.LocalDateTime
 import java.util.*
 
@@ -115,10 +114,12 @@ class ProfilePageViewModel : ViewModel() {
                         .addOnSuccessListener {
                             Log.d("TAG", "saveUser: successfully updated")
                             loadingChanged(false)
+                            navigateChanged(true)
                         }
                         .addOnFailureListener {
                             Log.d("TAG", "saveUser: update failed $it")
                             loadingChanged(false)
+                            navigateChanged(false)
                         }
                 } else {
                     saveUser(user)
@@ -135,6 +136,7 @@ class ProfilePageViewModel : ViewModel() {
                 messageChanged("Successfully Saved")
                 Log.d("TAG", "save: success you son of a bitch")
                 loadingChanged(false)
+                navigateChanged(true)
             } else {
                 messageChanged("Not Successfully")
                 Log.d("TAG", "save: not success you son of a bitch")
@@ -148,5 +150,9 @@ class ProfilePageViewModel : ViewModel() {
 
     private fun loadingChanged(loading: Boolean) {
         uiState.value = uiState.value.copy(loading = loading)
+    }
+
+    private fun navigateChanged(navigate: Boolean) {
+        uiState.value = uiState.value.copy(navigate = navigate)
     }
 }

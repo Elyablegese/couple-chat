@@ -38,8 +38,11 @@ import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.iia.couplechat.ui.components.CoupleChatAppBar
 import com.iia.couplechat.ui.components.LoadingIcon
+import com.iia.couplechat.ui.destinations.ChatScreenDestination
 import com.iia.couplechat.ui.navigation.ProfileNavGraph
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import kotlinx.coroutines.launch
 
 @ExperimentalPermissionsApi
@@ -48,7 +51,8 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterial3Api
 @Composable
 fun ProfilePage(
-    profilePageViewModel: ProfilePageViewModel = viewModel()
+    profilePageViewModel: ProfilePageViewModel = viewModel(),
+    navigator: DestinationsNavigator = EmptyDestinationsNavigator
 ) {
     val uiState by profilePageViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -82,7 +86,13 @@ fun ProfilePage(
             )
         }
     }
-
+    if (uiState.navigate) {
+        LaunchedEffect(true) {
+            launch {
+                navigator.navigate(ChatScreenDestination)
+            }
+        }
+    }
     if (uiState.shouldShowPermission) {
         AlertDialog(
             onDismissRequest = {
