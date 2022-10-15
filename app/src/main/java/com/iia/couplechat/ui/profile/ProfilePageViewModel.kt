@@ -11,10 +11,10 @@ import com.iia.couplechat.data.model.User
 import com.iia.couplechat.data.util.FirebaseStorageReferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.apache.commons.lang3.RandomStringUtils
 import java.security.SecureRandom
-import java.time.LocalDate
-import java.util.UUID
-import kotlin.time.Duration
+import java.time.LocalDateTime
+import java.util.*
 
 @HiltViewModel
 class ProfilePageViewModel : ViewModel() {
@@ -24,7 +24,8 @@ class ProfilePageViewModel : ViewModel() {
     private val storage = Firebase.storage
     private val storageReference = storage.reference
     private val profilePictureReference =
-        storageReference.child(FirebaseStorageReferences.PROFILE_PICTURE_REFERENCE).child(auth?.uid!!)
+        storageReference.child(FirebaseStorageReferences.PROFILE_PICTURE_REFERENCE)
+            .child(auth?.uid!!)
     private val currentUser = Firebase.auth.currentUser
 
     fun handleEvent(event: ProfilePageEvent) {
@@ -50,30 +51,31 @@ class ProfilePageViewModel : ViewModel() {
 
     private fun save() {
         loadingChanged(true)
-        val random = SecureRandom()
-        val bytes = ByteArray(20)
-        random.nextBytes(bytes)
+        val invitationCode = RandomStringUtils.random(8, true, true)
 
         var user = User(
             userId = currentUser?.uid,
             firstName = uiState.value.firstName,
             lastName = uiState.value.lastName,
-            invitationCode = bytes.toString(),
-            invitationCodeExpireDate = LocalDate.now().plusDays(7).toString()
+            invitationCode = invitationCode,
+            invitationCodeExpireDate = LocalDateTime.now().plusDays(7).toString(),
         )
+
         if (uiState.value.imageUri != null) {
             val fileReference = profilePictureReference.child("${UUID.randomUUID()}.jpg")
-            fileReference.putFile(uiState.value.imageUri!!).addOnSuccessListener { taskSnapshot ->
-                if (taskSnapshot.task.isSuccessful) {
-                    user = user.copy(profilePictureUri = fileReference.path)
-                    Log.d("TAG", "save: successfully uploaded")
-                    saveOrUpdateUser(user)
-                } else {
-                    Log.d("TAG", "save: not successful")
+            fileReference
+                .putFile(uiState.value.imageUri!!)
+                .addOnSuccessListener { taskSnapshot ->
+                    if (taskSnapshot.task.isSuccessful) {
+                        user = user.copy(profilePictureUri = fileReference.path)
+                        Log.d("TAG", "save: successfully uploaded")
+                        saveOrUpdateUser(user)
+                    } else {
+                        Log.d("TAG", "save: not successful")
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.d("TAG", "save: not successful: ${exception.message}")
                 }
-            }.addOnFailureListener { exception ->
-                Log.d("TAG", "save: not successful: ${exception.message}")
-            }
         } else {
             saveOrUpdateUser(user)
         }
@@ -106,8 +108,10 @@ class ProfilePageViewModel : ViewModel() {
                             "firstName" to user.firstName,
                             "lastName" to user.lastName,
                             "profilePictureUri" to user.profilePictureUri,
-
-                        ))
+                            "invitationCode" to user.invitationCode,
+                            "invitationCodeExpireDate" to user.invitationCodeExpireDate
+                        )
+                    )
                         .addOnSuccessListener {
                             Log.d("TAG", "saveUser: successfully updated")
                             loadingChanged(false)
