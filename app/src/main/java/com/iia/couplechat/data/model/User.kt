@@ -6,5 +6,6 @@ data class User(
     val lastName: String = "",
     val profilePictureUri: String = "",
     val invitationCode: String = "",
-    val invitationCodeExpireDate: String = ""
+    val invitationCodeExpireDate: String = "",
+    val joined: Boolean = false
 )

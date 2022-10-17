@@ -11,7 +11,6 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Key
@@ -24,12 +23,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iia.couplechat.R
 import com.iia.couplechat.ui.components.CoupleChatAppBar
+import com.iia.couplechat.ui.components.LoadingIcon
 import com.iia.couplechat.ui.navigation.ChatNavGraph
 import com.iia.couplechat.ui.theme.CoupleChatShapes
 import com.ramcosta.composedestinations.annotation.Destination
@@ -39,13 +39,19 @@ import com.ramcosta.composedestinations.annotation.Destination
 @ChatNavGraph(start = true)
 @Destination
 @Composable
-fun ChatScreen() {
+fun ChatScreen(
+    chatScreenViewModel: ChatScreenViewModel = viewModel()
+) {
     Scaffold(
         topBar = { CoupleChatAppBar(title = "Waiting for peers") }
     ) { paddingValues ->
-        var expandedState by remember { mutableStateOf(true) }
+        val uiState by chatScreenViewModel.uiState.collectAsState()
+
         val transition =
-            updateTransition(targetState = expandedState, label = "InvitationCard update animation")
+            updateTransition(
+                targetState = uiState.invitationCodeVisible,
+                label = "InvitationCard update animation"
+            )
 
         val widthWeight by transition.animateFloat(label = "Width modifier animation") { state ->
             if (state) 1f else .15f
@@ -77,14 +83,24 @@ fun ChatScreen() {
                         .fillMaxWidth(widthWeight)
                         .clip(CoupleChatShapes.large)
                         .clickable {
-                            expandedState = !expandedState
+                            chatScreenViewModel.handleEvent(
+                                ChatScreenEvent.InvitationCodeVisibilityChanged(!uiState.invitationCodeVisible)
+                            )
                         }
                 ) {
-                    if (expandedState) {
-                        InvitationCodeCard()
+                    if (uiState.invitationCodeVisible) {
+                        InvitationCodeCard(
+                            invitationCode = uiState.invitationCode,
+                            changeInvitationCodeLoading = uiState.changeInvitationCodeLoading,
+                            onChange = { chatScreenViewModel.handleEvent(ChatScreenEvent.ChangeInvitationCode) }
+                        )
                     } else {
                         IconButton(
-                            onClick = { expandedState = !expandedState },
+                            onClick = {
+                                chatScreenViewModel.handleEvent(
+                                    ChatScreenEvent.InvitationCodeVisibilityChanged(!uiState.invitationCodeVisible)
+                                )
+                            },
                             colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                             modifier = Modifier
                                 .height(64.dp)
@@ -98,8 +114,6 @@ fun ChatScreen() {
                             )
                         }
                     }
-
-
                 }
             }
             Box(
@@ -111,7 +125,7 @@ fun ChatScreen() {
                     .align(Alignment.BottomCenter)
             ) {
                 var message by remember { mutableStateOf("") }
-                if (false) {
+                if (uiState.joined) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
@@ -143,10 +157,15 @@ fun ChatScreen() {
                             visible = message.isNotEmpty(),
                             enter = scaleIn(),
                             exit = scaleOut(),
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterEnd)
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .align(Alignment.CenterEnd)
                         ) {
-                            IconButton(onClick = {  }) {
-                                Icon(painter = painterResource(id = R.drawable.send), contentDescription = "")
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.send),
+                                    contentDescription = ""
+                                )
                             }
                         }
                     }
@@ -159,50 +178,60 @@ fun ChatScreen() {
 
 @ExperimentalMaterial3Api
 @Composable
-private fun InvitationCodeCard() {
+private fun InvitationCodeCard(
+    invitationCode: String,
+    changeInvitationCodeLoading: Boolean,
+    modifier: Modifier = Modifier,
+    onShare: () -> Unit = {},
+    onCopy: () -> Unit = {},
+    onSave: () -> Unit = {},
+    onChange: () -> Unit = {},
+    onDelete: () -> Unit = {}
+) {
     Card {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
             Text(text = "Your invitation code...")
             Text(
-                text = "X7HE5OIP",
+                text = invitationCode,
                 style = MaterialTheme.typography.displayLarge,
                 modifier = Modifier.weight(1f)
             )
             InvitationCodeMenu {
-                IconButton(onClick = { }) {
+                IconButton(onClick = { onShare() }) {
                     Icon(
                         imageVector = Icons.Outlined.Share,
                         contentDescription = "",
                         tint = LocalContentColor.current
                     )
                 }
-                IconButton(onClick = { }) {
+                IconButton(onClick = { onCopy() }) {
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
                         contentDescription = "",
                         tint = LocalContentColor.current
                     )
                 }
-                IconButton(onClick = { }) {
+                IconButton(onClick = { onSave() }) {
                     Icon(
                         imageVector = Icons.Outlined.Save,
                         contentDescription = "",
                         tint = LocalContentColor.current
                     )
                 }
-                IconButton(onClick = { }) {
-                    Icon(
+                IconButton(onClick = { onChange() }) {
+                    LoadingIcon(
+                        loading = changeInvitationCodeLoading,
                         imageVector = Icons.Outlined.Refresh,
                         contentDescription = "",
-                        tint = LocalContentColor.current
+                        color = LocalContentColor.current
                     )
                 }
-                IconButton(onClick = { }) {
+                IconButton(onClick = { onDelete() }) {
                     Icon(
                         imageVector = Icons.Outlined.Delete,
                         contentDescription = "",

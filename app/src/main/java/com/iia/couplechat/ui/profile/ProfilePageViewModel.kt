@@ -58,6 +58,7 @@ class ProfilePageViewModel : ViewModel() {
             lastName = uiState.value.lastName,
             invitationCode = invitationCode,
             invitationCodeExpireDate = LocalDateTime.now().plusDays(7).toString(),
+            joined = false
         )
 
         if (uiState.value.imageUri != null) {
@@ -108,7 +109,8 @@ class ProfilePageViewModel : ViewModel() {
                             "lastName" to user.lastName,
                             "profilePictureUri" to user.profilePictureUri,
                             "invitationCode" to user.invitationCode,
-                            "invitationCodeExpireDate" to user.invitationCodeExpireDate
+                            "invitationCodeExpireDate" to user.invitationCodeExpireDate,
+                            "joined" to user.joined
                         )
                     )
                         .addOnSuccessListener {
