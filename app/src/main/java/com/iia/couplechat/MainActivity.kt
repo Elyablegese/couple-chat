@@ -21,12 +21,14 @@ import com.iia.couplechat.ui.theme.CoupleChatTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import dagger.hilt.android.AndroidEntryPoint
 
 @ExperimentalPermissionsApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialNavigationApi
 @ExperimentalAnimationApi
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
