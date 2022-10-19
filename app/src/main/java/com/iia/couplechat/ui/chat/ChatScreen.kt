@@ -4,10 +4,13 @@ import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -110,7 +113,7 @@ fun ChatScreen(
                             Icon(
                                 imageVector = Icons.Filled.Key,
                                 contentDescription = "",
-                                tint = Color.Yellow
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -126,22 +129,6 @@ fun ChatScreen(
             ) {
                 var message by remember { mutableStateOf("") }
                 if (uiState.joined) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                launcher.launch(null)
-                            }
-                    ) {
-                        Text(
-                            text = "INVITE CONTACT TO START CHATTING",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                } else {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         BasicTextField(
                             value = message,
@@ -152,7 +139,6 @@ fun ChatScreen(
                                 .padding(vertical = 4.dp, horizontal = 8.dp)
                                 .fillMaxSize()
                         )
-
                         AnimatedVisibility(
                             visible = message.isNotEmpty(),
                             enter = scaleIn(),
@@ -168,6 +154,22 @@ fun ChatScreen(
                                 )
                             }
                         }
+                    }
+                } else {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                launcher.launch(null)
+                            }
+                    ) {
+                        Text(
+                            text = "INVITE CONTACT TO START CHATTING",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             }
