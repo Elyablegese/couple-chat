@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.iia.couplechat.ui.NavGraphs
+import com.iia.couplechat.ui.navigation.CoupleChatNavGraphDefaultAnimation
 import com.iia.couplechat.ui.theme.CoupleChatTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navHostEngine = rememberAnimatedNavHostEngine(
-                        rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
+                        rootDefaultAnimations = CoupleChatNavGraphDefaultAnimation.COUPLE_CHAT_SLIDING
                     )
                     DestinationsNavHost(
                         navGraph = if (auth.currentUser == null)
