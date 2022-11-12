@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iia.couplechat.R
 import com.iia.couplechat.ui.destinations.CreateChatPageDestination
+import com.iia.couplechat.ui.destinations.JoinChatScreenDestination
 import com.iia.couplechat.ui.theme.CoupleChatShapes
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -63,7 +64,7 @@ fun WelcomePage(navigator: DestinationsNavigator) {
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(.65f),
                 onClick = {
-
+                    navigator.navigate(JoinChatScreenDestination)
                 },
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.primary

@@ -61,11 +61,7 @@ fun CreateChatPage(
         topBar = {
             CoupleChatAppBar(
                 title = stringResource(id = R.string.create_chat),
-                navigationIcon = {
-                    IconButton(onClick = { navigator.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "")
-                    }
-                }
+                navigationIcon = Icons.Default.ArrowBack
             )
         },
         floatingActionButton = {

@@ -2,11 +2,11 @@ package com.iia.couplechat.ui.components
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.TopAppBar
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 
 
@@ -16,19 +16,35 @@ fun CoupleChatAppBar(
     modifier: Modifier = Modifier,
     containerColor: Color = CoupleChatAppBarDefaults.containerColor,
     contentColor: Color = CoupleChatAppBarDefaults.contentColor,
-    navigationIcon: @Composable (() -> Unit)? = null,
+    navigationIcon: ImageVector? = null,
+    navigationIconClick: ()-> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = {
-            Text(text = title, style = MaterialTheme.typography.titleMedium, color = CoupleChatAppBarDefaults.contentColor)
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = CoupleChatAppBarDefaults.contentColor
+            )
         },
         backgroundColor = containerColor,
         contentColor = contentColor,
-        navigationIcon = navigationIcon,
+        navigationIcon = {
+            if (navigationIcon != null) {
+                IconButton(
+                    onClick = navigationIconClick,
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+                ) {
+                    Icon(imageVector = navigationIcon, "")
+                }
+            }
+        },
         actions = actions,
         modifier = modifier
     )
+
+
 }
 
 @Preview

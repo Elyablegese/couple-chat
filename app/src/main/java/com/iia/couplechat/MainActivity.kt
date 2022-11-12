@@ -20,7 +20,6 @@ import com.iia.couplechat.ui.NavGraphs
 import com.iia.couplechat.ui.navigation.CoupleChatNavGraphDefaultAnimation
 import com.iia.couplechat.ui.theme.CoupleChatTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import dagger.hilt.android.AndroidEntryPoint
 
