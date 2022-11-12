@@ -4,11 +4,10 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -20,6 +19,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iia.couplechat.ui.components.CoupleChatAppBar
+import com.iia.couplechat.ui.components.CoupleChatOutlinedTextField
 import com.iia.couplechat.ui.destinations.CreateChatPageDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -35,7 +35,7 @@ fun JoinChatScreen(navigator: DestinationsNavigator = EmptyDestinationsNavigator
         topBar = {
             CoupleChatAppBar(
                 title = "Join Chat",
-                navigationIcon = Icons.Default.ArrowForward,
+                navigationIcon = Icons.Default.ArrowBack,
                 navigationIconClick = { navigator.popBackStack() }
             )
         }
@@ -47,26 +47,30 @@ fun JoinChatScreen(navigator: DestinationsNavigator = EmptyDestinationsNavigator
                 .padding(paddingValues)
         ) {
             val annotatedString = buildAnnotatedString {
-                pushStringAnnotation(tag = "Non Link", annotation = "")
-                append("Enter invitation code. If you don't have ask your partner or ")
-                pushStringAnnotation(tag = "Link", "")
-                withStyle(
-                    style = SpanStyle(
-                        color = Color.Blue,
-                        textDecoration = TextDecoration.Underline
-                    )
-                ) {
-                    append("create new one")
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary.copy(.9f))) {
+                    pushStringAnnotation(tag = "Non Link", annotation = "")
+                    append("Enter invitation code. If you don't have ask your partner or ")
+                    pushStringAnnotation(tag = "Link", "")
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("create new one")
+                    }
+                    pop()
                 }
-                pop()
             }
+            var invitationCode by remember { mutableStateOf("") }
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth(.8f)
             ) {
                 Text(text = "Invitation Code")
                 ClickableText(
-                    text = annotatedString
+                    text = annotatedString,
                 ) { offset ->
                     annotatedString
                         .getStringAnnotations(tag = "Link", start = offset, end = offset)
@@ -75,6 +79,17 @@ fun JoinChatScreen(navigator: DestinationsNavigator = EmptyDestinationsNavigator
                             navigator.navigate(CreateChatPageDestination)
                         }
                 }
+
+                CoupleChatOutlinedTextField(
+                    value = invitationCode,
+                    onValueChange = {
+                        invitationCode = it
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = {  }) {
+                            Icon(imageVector = Icons.Default.Clear, contentDescription = "")
+                        }
+                    })
             }
         }
     }
