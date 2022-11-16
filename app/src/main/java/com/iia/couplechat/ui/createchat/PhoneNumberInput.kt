@@ -1,32 +1,31 @@
 package com.iia.couplechat.ui.createchat
 
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iia.couplechat.ui.theme.CoupleChatShapes
 import countries
 
-@ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @Composable
 fun PhoneNumberInput(
@@ -38,54 +37,75 @@ fun PhoneNumberInput(
     phoneNumberChanged: (String) -> Unit = {},
 ) {
     val focusManager: FocusManager = LocalFocusManager.current
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
-    ) {
-        TextField(
-            value = countryCode,
-            onValueChange = {
-                countryCodeChanged(it)
-                if (countries.any { country -> country.countryCode.toString() == it })
-                    focusManager.moveFocus(FocusDirection.Next)
-            },
-            leadingIcon = {
-                Text(text = "+")
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-            modifier = Modifier.weight(.4f)
-        )
-
-        TextField(
-            value = phoneNumber,
-            onValueChange = {
-                phoneNumberChanged(it)
-            },
-            placeholder = {
-                Text(text = phoneNumberFormat.replace('X', '0'))
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Previous
-            ),
-            keyboardActions = KeyboardActions(
-                onPrevious = {
-                    Log.d("TAG", "PhoneNumberInput: $phoneNumber")
-                }
-            ),
-            singleLine = true,
-            modifier = Modifier
-                .weight(.6f)
-                .onKeyEvent {
-                    if (it.key == Key.Backspace && phoneNumber.length <= 1) {
-                        focusManager.moveFocus(FocusDirection.Previous)
+    BasicTextField(
+        value = phoneNumber,
+        onValueChange = phoneNumberChanged,
+        decorationBox = { innerTextField ->
+            TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                value = phoneNumber,
+                innerTextField = {
+                    Row(
+                        verticalAlignment = CenterVertically,
+                    ) {
+                        Text(text = "+")
+                        BasicTextField(
+                            value = countryCode,
+                            onValueChange = {
+                                countryCodeChanged(it)
+                                if (countries.any { country -> country.countryCode.toString() == it })
+                                    focusManager.moveFocus(FocusDirection.Next)
+                            },
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            singleLine = true,
+                            textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
+//                            modifier = Modifier.width(42.dp)
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.primary.copy(.47f)
+                                )
+                                .height((TextFieldDefaults.MinHeight.value * 40 / 100).dp)
+                                .width(1.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        innerTextField()
                     }
-                    true
+                },
+                enabled = true,
+                singleLine = true,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = remember { MutableInteractionSource() },
+                label = {
+                    Text(text = "")
+                },
+                placeholder = {
+                    Text(text = phoneNumberFormat)
+                },
+                container = {
+                    TextFieldDefaults.OutlinedBorderContainerBox(
+                        enabled = true,
+                        isError = false,
+                        interactionSource = remember { MutableInteractionSource() },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(.5f)
+                        ),
+                        shape = CoupleChatShapes.medium,
+                        focusedBorderThickness = 3.dp,
+                        unfocusedBorderThickness = 2.dp
+                    )
                 }
-        )
-    }
+            )
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
+        modifier = modifier
+            .heightIn(min = TextFieldDefaults.MinHeight)
+            .widthIn(min = TextFieldDefaults.MinWidth)
+            .padding(8.dp)
+    )
 }
 
 @ExperimentalComposeUiApi
