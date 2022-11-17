@@ -9,18 +9,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.iia.couplechat.ui.NavGraphs
+import com.iia.couplechat.ui.createchat.CreateChatViewModel
 import com.iia.couplechat.ui.navigation.CoupleChatNavGraphDefaultAnimation
 import com.iia.couplechat.ui.theme.CoupleChatTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.navigation.dependency
 import dagger.hilt.android.AndroidEntryPoint
 
 @ExperimentalPermissionsApi
@@ -50,7 +54,16 @@ class MainActivity : ComponentActivity() {
                             NavGraphs.root
                         else
                             NavGraphs.chat,
-                        engine = navHostEngine
+                        engine = navHostEngine,
+                        dependenciesContainerBuilder = {
+                            dependency(NavGraphs.createChat){
+                                val parentEntry = remember(navBackStackEntry){
+                                    navController.getBackStackEntry(NavGraphs.createChat.route)
+                                }
+                                hiltViewModel<CreateChatViewModel>(parentEntry)
+                            }
+
+                        }
                     )
                 }
             }

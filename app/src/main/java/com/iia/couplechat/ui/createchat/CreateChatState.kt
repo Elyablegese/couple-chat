@@ -1,9 +1,6 @@
 package com.iia.couplechat.ui.createchat
 
-import EmptyCountry
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import com.iia.couplechat.ui.destinations.DirectionDestination
 
 data class CreateChatState(
     val phoneNumber: String = "",
@@ -13,7 +10,8 @@ data class CreateChatState(
     val url: String = "",
     val codeSent: Boolean = false,
     val verificationId: String = "",
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val direction: DirectionDestination? = null
 
 ) {
     fun isValid(): Boolean =

@@ -4,13 +4,17 @@ import EmptyCountry
 import android.app.Activity
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.iia.couplechat.data.repository.country.CountryRepository
 import com.iia.couplechat.ui.destinations.ProfilePageDestination
+import com.iia.couplechat.ui.destinations.VerifyNumberDestination
 import com.iia.couplechat.ui.verifynumber.VerificationCode
 import com.iia.couplechat.ui.verifynumber.VerificationCode.*
 import com.iia.couplechat.ui.verifynumber.VerifyNumberEvent
@@ -18,14 +22,18 @@ import com.iia.couplechat.ui.verifynumber.VerifyNumberState
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import countries
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+@ExperimentalComposeUiApi
 @ExperimentalPermissionsApi
 @ExperimentalMaterial3Api
 @HiltViewModel
-class CreateChatViewModel @Inject constructor() : ViewModel() {
+class CreateChatViewModel @Inject constructor(private val countryRepository: CountryRepository) :
+    ViewModel() {
     val uiState = MutableStateFlow(CreateChatState())
     val verifyUiState = MutableStateFlow(VerifyNumberState())
     private var auth: FirebaseAuth = Firebase.auth
@@ -45,10 +53,29 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
             verificationId: String,
             token: PhoneAuthProvider.ForceResendingToken
         ) {
-            uiState.value = uiState.value.copy(codeSent = true, verificationId = verificationId)
             loadingChanged(false)
+            viewModelScope.launch {
+                uiState.value = uiState.value.copy(codeSent = true, verificationId = verificationId)
+                delay(300)
+                uiState.value = uiState.value.copy(direction = VerifyNumberDestination)
+            }
 
-            Log.d("TAG", "onCodeSent: Code sent")
+
+            Log.d("TAG", "onCodeSent: Code sent verification Id: $verificationId")
+            Log.d("TAG", "onCodeSent: code sent: ${uiState.value.codeSent} isValid: ${uiState.value.isValid()}")
+        }
+    }
+
+    private fun countryCodeChanged(countryCode: Int) {
+        viewModelScope.launch {
+            val country = countryRepository.getCountry(countryCode)
+            country?.let {
+                uiState.value = uiState.value.copy(
+                    countryName = country.name,
+                    countryCode = "${country.countryCode}",
+                    url = country.url
+                )
+            }
         }
     }
 
@@ -80,17 +107,6 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
         )
     }
 
-    private fun countryCodeChanged(countryCode: String) {
-        val country =
-            countries.firstOrNull { it.countryCode.toString() == countryCode } ?: EmptyCountry
-        uiState.value = uiState.value.copy(
-            countryName = country.name,
-            countryCode = countryCode,
-            phoneNumberFormat = country.format,
-            url = country.url
-        )
-    }
-
     private fun sendVerificationCode(activity: Activity) {
         loadingChanged(true)
         val phoneNumber = "+${uiState.value.countryCode}${uiState.value.phoneNumber}"
@@ -106,12 +122,12 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun verifyPhoneNumber(
-        verificationCode: String,
         activity: Activity,
         navigator: DestinationsNavigator
     ) {
+        Log.d("TAG", "verifyPhoneNumber: verification code in uiState is ${uiState.value.verificationId}")
         val credential =
-            PhoneAuthProvider.getCredential(uiState.value.verificationId, verificationCode)
+            PhoneAuthProvider.getCredential(uiState.value.verificationId, verifyUiState.value.verificationCode)
         auth.signInWithCredential(credential).addOnCompleteListener(activity) { task ->
             if (task.isSuccessful) {
                 Log.d("TAG", "verifyPhoneNumber: sign in success")
@@ -140,7 +156,8 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
         }
 
         if (verifyUiState.value.isCodeValid()) {
-            verifyPhoneNumber(verifyUiState.value.verificationCode, activity, navigator)
+            Log.d("TAG", "verificationCodeChanged: valid code: ${verifyUiState.value.verificationCode}")
+            verifyPhoneNumber(activity, navigator)
         }
     }
 
@@ -161,7 +178,6 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
             is CreateChatEvent.CountryCodeChanged -> countryCodeChanged(event.countryCode)
             is CreateChatEvent.OnSendCode -> sendVerificationCode(event.activity)
             is CreateChatEvent.OnVerifyNumber -> verifyPhoneNumber(
-                event.verificationCode,
                 event.activity,
                 event.navigator
             )
@@ -169,7 +185,7 @@ class CreateChatViewModel @Inject constructor() : ViewModel() {
     }
 
     fun handleEvent(event: VerifyNumberEvent) {
-        when(event){
+        when (event) {
             is VerifyNumberEvent.VerificationCodeChanged -> verificationCodeChanged(
                 event.verificationCode,
                 event.value,

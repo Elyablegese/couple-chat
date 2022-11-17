@@ -1,5 +1,6 @@
 package com.iia.couplechat.ui.verifynumber
 
+import android.app.Activity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -12,25 +13,35 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.iia.couplechat.ui.createchat.CreateChatState
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.iia.couplechat.ui.createchat.CreateChatEvent
+import com.iia.couplechat.ui.createchat.CreateChatViewModel
+import com.iia.couplechat.ui.navigation.CreateChatNavGraph
 import com.iia.couplechat.ui.theme.CoupleChatShapes
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
+@OptIn(ExperimentalPermissionsApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
+@CreateChatNavGraph
 @Destination
 @Composable
 fun VerifyNumber(
-    uiState: VerifyNumberState,
-    verificationCodeChanged: (verificationCode: VerificationCode, value: String) -> Unit,
-    onVerifyNumber: () -> Unit = {}
+    createChatViewModel: CreateChatViewModel,
+    navigator: DestinationsNavigator = EmptyDestinationsNavigator
 ) {
+    val uiState by createChatViewModel.verifyUiState.collectAsState()
+    val activity = LocalContext.current as Activity
+
     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -55,17 +66,18 @@ fun VerifyNumber(
             ) {
                 val focusManager = LocalFocusManager.current
 
+
                 OtpItem(
                     char = uiState.code1,
                     onValueChange = {
-                        verificationCodeChanged(VerificationCode.CODE1, it)
+                        createChatViewModel.handleEvent(VerifyNumberEvent.VerificationCodeChanged(VerificationCode.CODE1, it, navigator, activity))
                     },
                     onNext = { focusManager.moveFocus(FocusDirection.Next) },
                 )
                 OtpItem(
                     char = uiState.code2,
                     onValueChange = {
-                        verificationCodeChanged(VerificationCode.CODE2, it)
+                        createChatViewModel.handleEvent(VerifyNumberEvent.VerificationCodeChanged(VerificationCode.CODE2, it, navigator, activity))
                     },
                     onNext = { focusManager.moveFocus(FocusDirection.Next) },
                     onPrevious = { focusManager.moveFocus(FocusDirection.Previous) }
@@ -73,7 +85,7 @@ fun VerifyNumber(
                 OtpItem(
                     char = uiState.code3,
                     onValueChange = {
-                        verificationCodeChanged(VerificationCode.CODE3, it)
+                        createChatViewModel.handleEvent(VerifyNumberEvent.VerificationCodeChanged(VerificationCode.CODE3, it, navigator, activity))
                     },
                     onNext = { focusManager.moveFocus(FocusDirection.Next) },
                     onPrevious = { focusManager.moveFocus(FocusDirection.Previous) }
@@ -81,20 +93,22 @@ fun VerifyNumber(
                 OtpItem(
                     char = uiState.code4,
                     onValueChange = {
-                        verificationCodeChanged(VerificationCode.CODE4, it)
+                        createChatViewModel.handleEvent(VerifyNumberEvent.VerificationCodeChanged(VerificationCode.CODE4, it, navigator, activity))
                     },
                     onNext = { focusManager.moveFocus(FocusDirection.Next) },
                     onPrevious = { focusManager.moveFocus(FocusDirection.Previous) }
                 )
                 OtpItem(
                     char = uiState.code5,
-                    onValueChange = { verificationCodeChanged(VerificationCode.CODE5, it) },
+                    onValueChange = {
+                        createChatViewModel.handleEvent(VerifyNumberEvent.VerificationCodeChanged(VerificationCode.CODE5, it, navigator, activity))
+                    },
                     onNext = { focusManager.moveFocus(FocusDirection.Next) },
                     onPrevious = { focusManager.moveFocus(FocusDirection.Previous) }
                 )
                 OtpItem(
                     char = uiState.code6,
-                    onValueChange = { verificationCodeChanged(VerificationCode.CODE6, it) },
+                    onValueChange = { createChatViewModel.handleEvent(VerifyNumberEvent.VerificationCodeChanged(VerificationCode.CODE6, it, navigator, activity)) },
                     onPrevious = { focusManager.moveFocus(FocusDirection.Previous) }
                 )
             }
@@ -102,7 +116,7 @@ fun VerifyNumber(
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(.65f),
                 onClick = {
-                    onVerifyNumber()
+                    createChatViewModel.handleEvent(CreateChatEvent.OnVerifyNumber(activity, navigator))
                 },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary,

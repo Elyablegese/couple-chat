@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -16,45 +17,46 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.iia.couplechat.R
 import com.iia.couplechat.ui.components.CoupleChatAppBar
 import com.iia.couplechat.ui.components.LoadingIcon
 import com.iia.couplechat.ui.destinations.CountryListDestination
-import com.iia.couplechat.ui.verifynumber.VerifyNumber
-import com.iia.couplechat.ui.verifynumber.VerifyNumberEvent
+import com.iia.couplechat.ui.navigation.CreateChatNavGraph
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.result.EmptyResultRecipient
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import countries
 
 @OptIn(ExperimentalPermissionsApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
+@CreateChatNavGraph(start = true)
 @Destination
 @Composable
 fun CreateChatPage(
     navigator: DestinationsNavigator,
-    resultRecipient: ResultRecipient<CountryListDestination, String> = EmptyResultRecipient(),
-    createChatViewModel: CreateChatViewModel = viewModel()
+    resultRecipient: ResultRecipient<CountryListDestination, Int> = EmptyResultRecipient(),
+    createChatViewModel: CreateChatViewModel
 ) {
     val uiState by createChatViewModel.uiState.collectAsState()
-    val verifyUiState by createChatViewModel.verifyUiState.collectAsState()
     val activity = LocalContext.current as Activity
 
     resultRecipient.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {}
             is NavResult.Value -> {
-                createChatViewModel.handleEvent(CreateChatEvent.CountryChanged(countries.first { result.value == it.shortName }.name))
+                createChatViewModel.handleEvent(CreateChatEvent.CountryCodeChanged(result.value))
             }
+        }
+    }
+
+    if (uiState.direction != null) {
+        LaunchedEffect(uiState.direction){
+            navigator.navigate(uiState.direction!!)
         }
     }
     Scaffold(
@@ -66,7 +68,7 @@ fun CreateChatPage(
         },
         floatingActionButton = {
             AnimatedVisibility(
-                visible = uiState.isValid() && !uiState.codeSent,
+                visible = uiState.isValid() && uiState.codeSent.not(),
                 enter = scaleIn(),
                 exit = scaleOut()
             ) {
@@ -83,105 +85,37 @@ fun CreateChatPage(
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            AnimatedContent(targetState = uiState.codeSent, transitionSpec = {
-                if (targetState)
-                    slideInHorizontally { -it } with slideOutVertically { it }
-                else
-                    slideInHorizontally { it } with slideOutHorizontally { -it }
-            }) { state ->
-                if (state)
-                    VerifyNumber(
-                        uiState = verifyUiState,
-                        verificationCodeChanged = { verificationCode, value ->
-                            createChatViewModel.handleEvent(
-                                VerifyNumberEvent.VerificationCodeChanged(verificationCode, value, navigator, activity)
-                            )
-                        },
-                        onVerifyNumber = {
-                            createChatViewModel.handleEvent(
-                                CreateChatEvent.OnVerifyNumber(
-                                    verifyUiState.verificationCode,
-                                    activity,
-                                    navigator
-                                )
-                            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth(.75f)
+            ) {
+                CountryPicker(
+                    countryName = uiState.countryName,
+                    url = uiState.url,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp)
+                        .clickable {
+                            navigator.navigate(CountryListDestination)
                         }
-                    )
-                else
-                    CreateChat(
-                        uiState = uiState, countryCodeChanged = { countryCode ->
-                            createChatViewModel.handleEvent(
-                                CreateChatEvent.CountryCodeChanged(countryCode)
-                            )
-
-                        },
-                        phoneNumberChanged = { phoneNumber ->
-                            createChatViewModel.handleEvent(
-                                CreateChatEvent.PhoneNumberChanged(phoneNumber)
-                            )
-                        },
-                        navigator = navigator
-                    )
+                )
+                PhoneNumberInput(
+                    countryCode = uiState.countryCode,
+                    phoneNumberFormat = uiState.phoneNumberFormat,
+                    phoneNumber = uiState.phoneNumber,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp),
+                    countryCodeChanged = { countryCode ->
+                        createChatViewModel.handleEvent(CreateChatEvent.CountryCodeChanged(countryCode.toInt()))
+                    },
+                    phoneNumberChanged = { phoneNumber ->
+                        createChatViewModel.handleEvent(CreateChatEvent.PhoneNumberChanged(phoneNumber))
+                    }
+                )
             }
         }
 
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@ExperimentalAnimationApi
-@ExperimentalMaterial3Api
-@Preview
-@Composable
-@ExperimentalPermissionsApi
-fun CreateChatPagePreview() {
-    CreateChatPage(navigator = EmptyDestinationsNavigator)
-}
-
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
-@Composable
-fun CreateChat(
-    uiState: CreateChatState,
-    navigator: DestinationsNavigator,
-    countryCodeChanged: (countryCode: String) -> Unit,
-    phoneNumberChanged: (phoneNumber: String) -> Unit
-) {
-    Box(
-        Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(.75f)
-        ) {
-            CountryPicker(
-                countryName = uiState.countryName,
-                url = uiState.url,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .clickable {
-                        navigator.navigate(CountryListDestination)
-                    }
-            )
-            PhoneNumberInput(
-                countryCode = uiState.countryCode,
-                phoneNumberFormat = uiState.phoneNumberFormat,
-                phoneNumber = uiState.phoneNumber,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-                countryCodeChanged = { countryCode ->
-                    countryCodeChanged(countryCode)
-                },
-                phoneNumberChanged = { phoneNumber ->
-                    phoneNumberChanged(phoneNumber)
-                }
-            )
-        }
     }
 }
