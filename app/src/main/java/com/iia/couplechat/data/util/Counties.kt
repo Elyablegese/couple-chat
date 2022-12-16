@@ -1402,7 +1402,8 @@ val EmptyCountry = Country(
     shortName = "",
     name = "",
     format = "",
-    url = ""
+    url = "",
+    id = 0
 )
 val countriesRaw = Json.decodeFromString<List<Country>>(countriesData)
 val countries = countriesRaw.sortedBy { it.name }

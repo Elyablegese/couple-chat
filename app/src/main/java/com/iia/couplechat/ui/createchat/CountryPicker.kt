@@ -1,5 +1,6 @@
 package com.iia.couplechat.ui.createchat
 
+import android.graphics.BitmapFactory
 import androidx.compose.animation.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -19,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.iia.couplechat.R
-import com.iia.couplechat.data.model.Country
 import com.iia.couplechat.ui.theme.CoupleChatShapes
 
 @ExperimentalAnimationApi
@@ -55,8 +55,10 @@ fun CountryPicker(countryName: String, url: String, modifier: Modifier = Modifie
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        val assetManager = LocalContext.current.assets
+                        val bitmap = BitmapFactory.decodeStream(assetManager.open(url))
                         AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current).data(url)
+                            model = ImageRequest.Builder(LocalContext.current).data(bitmap)
                                 .crossfade(true).build(),
                             contentDescription = "$countryName Flag",
                             placeholder = painterResource(id = R.drawable.placeholder_flag),

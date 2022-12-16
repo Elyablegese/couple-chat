@@ -103,7 +103,7 @@ fun PhoneNumberInput(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
         modifier = modifier
-            .heightIn(min = TextFieldDefaults.MinHeight)
+            .height(64.dp)
             .widthIn(min = TextFieldDefaults.MinWidth)
             .padding(8.dp)
     )

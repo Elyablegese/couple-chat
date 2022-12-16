@@ -15,7 +15,6 @@ import org.apache.commons.lang3.RandomStringUtils
 import java.time.LocalDateTime
 import java.util.*
 
-@HiltViewModel
 class ProfilePageViewModel : ViewModel() {
     val uiState = MutableStateFlow(ProfilePageState())
     private val auth = Firebase.auth.currentUser
